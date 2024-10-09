@@ -3,7 +3,7 @@ package com.mathis.rankr.models;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 
-import com.mathis.rankr.models.auth.request.RegisterRequest;
+import com.mathis.rankr.models.auth.RegisterRequest;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

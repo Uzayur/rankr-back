@@ -1,8 +1,8 @@
 package com.mathis.rankr.controllers;
 
 import com.mathis.rankr.models.User;
-import com.mathis.rankr.models.auth.request.LoginRequest;
-import com.mathis.rankr.models.auth.request.RegisterRequest;
+import com.mathis.rankr.models.auth.LoginRequest;
+import com.mathis.rankr.models.auth.RegisterRequest;
 import com.mathis.rankr.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

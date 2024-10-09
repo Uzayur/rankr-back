@@ -1,4 +1,4 @@
-package com.mathis.rankr.models.auth.request;
+package com.mathis.rankr.models.auth;
 
 import javax.validation.constraints.NotBlank;
 
