@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.time.OffsetDateTime;
 
 @RestController
 @RequestMapping("/auth")
@@ -44,19 +43,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        User newUser = new User();
-        newUser.setUsername(registerRequest.getUsername());
-        newUser.setFirstname(registerRequest.getFirstname());
-        newUser.setLastname(registerRequest.getLastname());
-        newUser.setEmail(registerRequest.getEmail());
-
-        String hashedPassword = userService.hashPassword(registerRequest.getPassword());
-        newUser.setPassword(hashedPassword);
-
-        newUser.setBio(registerRequest.getBio());
-
-        newUser.setCreatedAt(OffsetDateTime.now());
-        newUser.setUpdatedAt(OffsetDateTime.now());
+        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
+        User newUser = new User(registerRequest);
 
         User savedUser = userService.saveUser(newUser);
 

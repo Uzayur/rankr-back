@@ -26,9 +26,8 @@ public class RegisterRequest {
     @Size(min = 6, max = 255)
     private String password;
 
-    private String bio; // Optional field
+    private String bio;
 
-    // Getters and Setters
     public String getUsername() {
         return username;
     }

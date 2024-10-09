@@ -1,6 +1,8 @@
 package com.mathis.rankr.models;
 
 import javax.persistence.*;
+
+import com.mathis.rankr.models.auth.RegisterRequest;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.OffsetDateTime;
@@ -13,7 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ColumnDefault("uuid_generate_v4()")
     @Column(name = "uuid", nullable = false)
-    private UUID id;
+    private UUID uuid;
 
     @Column(name = "username", nullable = false, length = 30)
     private String username;
@@ -46,6 +48,19 @@ public class User {
     @ColumnDefault("now()")
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
+    public User() {}
+
+    public User(RegisterRequest registerRequest) {
+        this.username = registerRequest.getUsername();
+        this.firstname = registerRequest.getFirstname();
+        this.lastname = registerRequest.getLastname();
+        this.email = registerRequest.getEmail();
+        this.password = registerRequest.getPassword();
+        this.bio = registerRequest.getBio();
+        this.createdAt = OffsetDateTime.now();
+        this.updatedAt = OffsetDateTime.now();
+    }
 
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
@@ -127,11 +142,11 @@ public class User {
         this.username = username;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setUuid(UUID id) {
+        this.uuid = id;
     }
 }

@@ -28,6 +28,10 @@ public class UserService {
             throw new UserAlreadyExistsException("User with this username already exists");
         }
 
+        if (userRepository.getUserByEmail(user.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
+
         return userRepository.save(user);
     }
 
