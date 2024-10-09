@@ -27,6 +27,15 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
+        User newUser = new User(registerRequest);
+
+        User savedUser = userService.addUser(newUser);
+
+        return ResponseEntity.ok(savedUser);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
@@ -47,13 +56,16 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
-        User newUser = new User(registerRequest);
-
-        User savedUser = userService.addUser(newUser);
-
-        return ResponseEntity.ok(savedUser);
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null) {
+                SecurityContextHolder.clearContext();
+            }
+            return ResponseEntity.ok("Logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 }
