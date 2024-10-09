@@ -1,16 +1,21 @@
 package com.mathis.rankr.models;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 
-import com.mathis.rankr.models.auth.RegisterRequest;
+import com.mathis.rankr.models.auth.request.RegisterRequest;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ColumnDefault("uuid_generate_v4()")
@@ -27,6 +32,7 @@ public class User {
     private String lastname;
 
     @Column(name = "email", nullable = false, length = 100)
+    @Email
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -82,8 +88,8 @@ public class User {
         return lastLogin;
     }
 
-    public void setLastLogin(OffsetDateTime lastLogin) {
-        this.lastLogin = lastLogin;
+    public void updateLastLogin() {
+        this.lastLogin = OffsetDateTime.now();
     }
 
     public byte[] getProfilePicture() {
@@ -100,6 +106,11 @@ public class User {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 
     public String getPassword() {
@@ -136,6 +147,26 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setUsername(String username) {

@@ -1,8 +1,8 @@
 package com.mathis.rankr.controllers;
 
 import com.mathis.rankr.models.User;
-import com.mathis.rankr.models.auth.LoginRequest;
-import com.mathis.rankr.models.auth.RegisterRequest;
+import com.mathis.rankr.models.auth.request.LoginRequest;
+import com.mathis.rankr.models.auth.request.RegisterRequest;
 import com.mathis.rankr.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,24 +29,30 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody @Valid LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = userService.getUserByUsername(loginRequest.getUsername());
 
-        User user = userService.getUserByUsername(loginRequest.getUsername());
+            user.updateLastLogin();
+            userService.saveUser(user);
 
-        return ResponseEntity.ok(user);
+            return ResponseEntity.ok(user);
+        }  catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody @Valid RegisterRequest registerRequest) {
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
         registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
         User newUser = new User(registerRequest);
 
-        User savedUser = userService.saveUser(newUser);
+        User savedUser = userService.addUser(newUser);
 
         return ResponseEntity.ok(savedUser);
     }

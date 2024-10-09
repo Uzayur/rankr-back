@@ -23,7 +23,7 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
-    public User saveUser(User user) {
+    public User addUser(User user) {
         if (userRepository.getUserByUsername(user.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("User with this username already exists");
         }
@@ -32,6 +32,10 @@ public class UserService {
             throw new UserAlreadyExistsException("User with this email already exists");
         }
 
+        return userRepository.save(user);
+    }
+
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 
