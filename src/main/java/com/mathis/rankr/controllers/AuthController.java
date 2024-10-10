@@ -6,12 +6,16 @@ import com.mathis.rankr.models.User;
 import com.mathis.rankr.models.auth.LoginRequest;
 import com.mathis.rankr.models.auth.RegisterRequest;
 import com.mathis.rankr.models.auth.UpdateUserRequest;
+import com.mathis.rankr.models.utils.CustomResponse;
 import com.mathis.rankr.services.UserService;
+import com.mathis.rankr.utils.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,15 +37,15 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
         try {
             registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
-            User newUser = new User(registerRequest);
 
+            User newUser = new User(registerRequest);
             User savedUser = userService.createUser(newUser);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            return ResponseUtil.body(HttpStatus.CREATED, savedUser);
         } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseUtil.build(HttpStatus.CONFLICT, e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -58,22 +62,26 @@ public class AuthController {
             user.updateLastLogin();
             userService.saveUser(user);
 
-            return ResponseEntity.ok(user);
-        }  catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseUtil.body(HttpStatus.OK, user);
+        }  catch (BadCredentialsException e) {
+            return ResponseUtil.build(HttpStatus.UNAUTHORIZED, "Invalid username or password.");
+        } catch (AuthenticationException e) {
+            return ResponseUtil.build(HttpStatus.FORBIDDEN, "Access denied.");
+        } catch (Exception e) {
+            return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<CustomResponse> logout() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null) {
                 SecurityContextHolder.clearContext();
             }
-            return ResponseEntity.ok("Logged out successfully");
+            return ResponseUtil.build(HttpStatus.OK, "You have been logged out successfully.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -81,13 +89,13 @@ public class AuthController {
     public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest, @PathVariable UUID uuid) {
         try {
             User updatedUser = userService.updateUser(uuid, updateUserRequest);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseUtil.body(HttpStatus.OK, updatedUser);
         } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseUtil.build(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseUtil.build(HttpStatus.CONFLICT, e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }
