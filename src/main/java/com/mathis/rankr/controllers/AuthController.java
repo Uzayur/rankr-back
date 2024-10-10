@@ -31,12 +31,18 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
-        User newUser = new User(registerRequest);
+        try {
+            registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
+            User newUser = new User(registerRequest);
 
-        User savedUser = userService.addUser(newUser);
+            User savedUser = userService.createUser(newUser);
 
-        return ResponseEntity.ok(savedUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")

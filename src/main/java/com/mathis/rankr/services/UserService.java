@@ -6,6 +6,8 @@ import com.mathis.rankr.models.User;
 import com.mathis.rankr.models.auth.UpdateUserRequest;
 import com.mathis.rankr.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +26,18 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public UUID getConnectedUserUuid() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = getUserByUsername(username);
+        return user.getUuid();
+    }
+
     public String hashPassword(String password) {
         return passwordEncoder.encode(password);
     }
 
-    public User addUser(User user) {
+    public User createUser(User user) {
         if (userRepository.getUserByUsername(user.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("User with this username already exists");
         }
