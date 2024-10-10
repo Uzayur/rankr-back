@@ -1,20 +1,22 @@
 package com.mathis.rankr.controllers;
 
+import com.mathis.rankr.exceptions.UserAlreadyExistsException;
+import com.mathis.rankr.exceptions.UserNotFoundException;
 import com.mathis.rankr.models.User;
 import com.mathis.rankr.models.auth.LoginRequest;
 import com.mathis.rankr.models.auth.RegisterRequest;
+import com.mathis.rankr.models.auth.UpdateUserRequest;
 import com.mathis.rankr.services.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -64,6 +66,20 @@ public class AuthController {
                 SecurityContextHolder.clearContext();
             }
             return ResponseEntity.ok("Logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/user/{uuid}")
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest, @PathVariable UUID uuid) {
+        try {
+            User updatedUser = userService.updateUser(uuid, updateUserRequest);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
