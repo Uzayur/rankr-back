@@ -26,10 +26,10 @@ To get started with the project, follow these steps:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/Uzayur/Rankr-Back.git
+git clone https://github.com/Uzayur/rankr-back.git
 ```
 ```bash
-cd Rankr-Back
+cd rankr-back
 ```
 
 ### Step 2: Configure your PostgreSQL database
@@ -65,7 +65,7 @@ The application will be available at http://localhost:8080
 
 The frontend of the Rankr application can be found in the following repository:
 
-- [Rankr Frontend Repository](https://github.com/Uzayur/Rankr-Front)
+- [Rankr Frontend Repository](https://github.com/Uzayur/rankr-front)
 
 ## License
 
