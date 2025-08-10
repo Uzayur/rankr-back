@@ -17,13 +17,11 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-    private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -48,7 +46,7 @@ public class UserService {
             throw new UserAlreadyExistsException("User with this username already exists");
         }
 
-        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
+        registerRequest.setPassword(this.hashPassword(registerRequest.getPassword()));
         User newUser = new User(registerRequest);
 
         return userRepository.save(newUser);
