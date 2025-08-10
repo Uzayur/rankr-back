@@ -3,6 +3,7 @@ package com.mathis.rankr.services;
 import com.mathis.rankr.exceptions.UserAlreadyExistsException;
 import com.mathis.rankr.exceptions.UserNotFoundException;
 import com.mathis.rankr.models.User;
+import com.mathis.rankr.models.auth.RegisterRequest;
 import com.mathis.rankr.models.auth.UpdateUserRequest;
 import com.mathis.rankr.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,13 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-
+    private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -37,16 +39,19 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
 
-    public User createUser(User user) {
-        if (userRepository.getUserByUsername(user.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User with this username already exists");
-        }
-
-        if (userRepository.getUserByEmail(user.getEmail()).isPresent()) {
+    public User createUser(RegisterRequest registerRequest) {
+        if (userRepository.getUserByEmail(registerRequest.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("User with this email already exists");
         }
 
-        return userRepository.save(user);
+        if (userRepository.getUserByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User with this username already exists");
+        }
+
+        registerRequest.setPassword(userService.hashPassword(registerRequest.getPassword()));
+        User newUser = new User(registerRequest);
+
+        return userRepository.save(newUser);
     }
 
     public void saveUser(User user) {

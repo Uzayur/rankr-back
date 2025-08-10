@@ -1,6 +1,5 @@
 package com.mathis.rankr.services.auth;
 
-import com.mathis.rankr.models.User;
 import com.mathis.rankr.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

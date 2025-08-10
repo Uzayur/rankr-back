@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 
 import com.mathis.rankr.models.auth.RegisterRequest;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,8 +35,8 @@ public class User implements UserDetails {
     @Column(name = "lastname", nullable = false, length = 50)
     private String lastname;
 
-    @Column(name = "email", nullable = false, length = 100)
     @Email
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -55,8 +59,7 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
-    public User() {}
-
+    // Constructor from RegisterRequest
     public User(RegisterRequest registerRequest) {
         this.username = registerRequest.getUsername();
         this.firstname = registerRequest.getFirstname();
@@ -68,44 +71,8 @@ public class User implements UserDetails {
         this.updatedAt = OffsetDateTime.now();
     }
 
-    public OffsetDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public OffsetDateTime getLastLogin() {
-        return lastLogin;
-    }
-
     public void updateLastLogin() {
         this.lastLogin = OffsetDateTime.now();
-    }
-
-    public byte[] getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(byte[] profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
     }
 
     @Override
@@ -113,42 +80,7 @@ public class User implements UserDetails {
         return List.of();
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
+    // UserDetails interface defaults
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -167,17 +99,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID id) {
-        this.uuid = id;
     }
 }
